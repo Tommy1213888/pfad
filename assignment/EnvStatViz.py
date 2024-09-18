@@ -1,4 +1,4 @@
-import requests
+import requests23
 from lxml import html
 import dotenv
 import os
