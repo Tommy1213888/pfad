@@ -1,89 +1,47 @@
-import requests23
-from lxml import html
-import dotenv
-import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+import matplotlib.dates as mdates
 
-# 加载环境变量
-dotenv.load_dotenv()
+# 加载CSV文件数据
+file_path = r'C:\Users\15950\Desktop\Python_Projects\Luo_Yiyan\assignment\Moon_rise_set_2024.CSV'  # 替换为实际的文件路径
+df = pd.read_csv(file_path)  # 使用 read_csv() 读取 CSV 文件
 
-# 定义 URL 和文件名
-url = os.getenv('CO2_URL', 'https://unstats.un.org/unsd/envstats/unsd_co2_emissions.xlsx')
-filename = os.getenv('FILENAME', 'co2_emissions.xlsx')
+# 打印CSV文件中的列名，确认实际的列名称
+print(df.columns)
 
+# 提取月升和月落时间数据，列名为 'RISE' 和 'SET'
+moon_rise_times = df['RISE']
+moon_set_times = df['SET']
+dates = pd.to_datetime(df['YYYY-MM-DD'], format='%Y/%m/%d')
 
-# Step 1: 下载数据或读取本地文件
-def download_data(url, filename):
-    if not os.path.exists(filename):
-        response = requests.get(url)
-        with open(filename, 'wb') as f:
-            f.write(response.content)
-        print(f'{filename} downloaded successfully.')
-    else:
-        print(f'{filename} already exists.')
+# 转换时间为 datetime 格式，方便处理
+moon_rise_times = pd.to_datetime(moon_rise_times, format='%H:%M', errors='coerce')
+moon_set_times = pd.to_datetime(moon_set_times, format='%H:%M', errors='coerce')
 
+# 过滤无效时间
+moon_rise_times = moon_rise_times.dropna()
+moon_set_times = moon_set_times.dropna()
 
-download_data(url, filename)
+# 计算平均月升和月落时间
+average_moon_rise = moon_rise_times.mean()
+average_moon_set = moon_set_times.mean()
 
+print(f"平均月升时间: {average_moon_rise.time()}")
+print(f"平均月落时间: {average_moon_set.time()}")
 
-# Step 2: 读取 Excel 文件并转换为 Pandas DataFrame
-def read_excel_data(filename):
-    df = pd.read_excel(filename, sheet_name=0)  # 假设数据在第一个表格中
-    print("Data loaded successfully.")
-    return df
+# 数据可视化：绘制月升和月落时间的折线图
+plt.figure(figsize=(10, 6))
+plt.plot(dates[:len(moon_rise_times)], moon_rise_times, label='Moon Rise', marker='o', color='blue')
+plt.plot(dates[:len(moon_set_times)], moon_set_times, label='Moon Set', marker='o', color='orange')
 
+# 设置纵轴格式为 HH:MM 时间
+plt.gca().yaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
 
-df = read_excel_data(filename)
-
-
-# Step 3: 筛选出特定国家的数据
-def filter_country_data(df, country):
-    country_data = df[df['Country'] == country]
-    country_data = country_data[['Year', 'CO2 Emissions']]  # 假设有 "Year" 和 "CO2 Emissions" 列
-    return country_data
-
-
-# 选择要分析的国家，例如中国
-country = 'China'
-china_data = filter_country_data(df, country)
-
-print(china_data.head())
-
-
-# Step 4: 数据可视化（绘制二氧化碳排放量时间序列图）
-def plot_data(country_data, country):
-    plt.figure(figsize=(10, 6))
-    sns.lineplot(x='Year', y='CO2 Emissions', data=country_data, marker='o', color='b')
-    plt.title(f'CO2 Emissions Over Time in {country}', fontsize=16)
-    plt.xlabel('Year', fontsize=14)
-    plt.ylabel('CO2 Emissions (Million Metric Tons)', fontsize=14)
-    plt.grid(True)
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-
-plot_data(china_data, country)
-
-
-# Step 5: 比较多个国家的 CO2 排放量
-def compare_countries(df, countries):
-    plt.figure(figsize=(12, 8))
-    for country in countries:
-        country_data = filter_country_data(df, country)
-        sns.lineplot(x='Year', y='CO2 Emissions', data=country_data, label=country, marker='o')
-
-    plt.title('CO2 Emissions Comparison Between Countries', fontsize=16)
-    plt.xlabel('Year', fontsize=14)
-    plt.ylabel('CO2 Emissions (Million Metric Tons)', fontsize=14)
-    plt.legend()
-    plt.grid(True)
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-
-# 比较中国、美国和印度的排放量
-compare_countries(df, ['China', 'United States', 'India'])
+plt.title('Moon Rise and Set Times')
+plt.xlabel('Date')
+plt.ylabel('Time (HH:MM)')
+plt.legend()
+plt.grid(True)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
