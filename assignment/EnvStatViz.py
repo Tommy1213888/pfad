@@ -44,4 +44,4 @@ plt.legend()
 plt.grid(True)
 plt.xticks(rotation=45)
 plt.tight_layout()
-plt.show()
+plt.show() #Draw the Viz
