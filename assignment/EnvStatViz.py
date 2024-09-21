@@ -2,11 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-file_path = r'C:\Users\15950\Desktop\Python_Projects\Luo_Yiyan\assignment\Moon_rise_set_2024.CSV'
-#please change the path of the CSV when you use it on your laptop
-
+file_path = 'Moon_rise_set_2024.CSV'
 df = pd.read_csv(file_path)
-
 print(df.columns)
 
 moon_rise_times = df['RISE']
