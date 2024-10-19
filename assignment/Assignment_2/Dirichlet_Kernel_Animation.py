@@ -6,7 +6,6 @@ from matplotlib.animation import FuncAnimation
 def dirichlet_kernel(x, N):
     return np.sin((N + 0.5) * x) / np.sin(0.5 * x)
 
-# x range and initial N
 x = np.linspace(-4 * np.pi, 4 * np.pi, 1000)
 N = 1
 
@@ -22,7 +21,7 @@ def update(N):
     ax.set_title(f"Dirichlet Kernel, N = {N}")
     return line,
 
-# Animation settings
+# Animation settings(Dirichlet Kernel Animation)
 ani = FuncAnimation(fig, update, frames=np.arange(1, 50), interval=200, blit=True)
 
 # Show plot
